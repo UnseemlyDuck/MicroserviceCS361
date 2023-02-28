@@ -1,15 +1,24 @@
 import os
-from flask import Flask, send_from_directory
+from flask import Flask, send_file
+from flask_restful import Api, Resource
 
-app = Flask(__name__)
-IMAGE_FOLDER = "images"
-app.config["UPLOAD_FOLDER"] = IMAGE_FOLDER
+app = Flask(name)
+api = Api(app)
 
-@app.route("/images/<path:filename>")
-def get_image(filename):
-    return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
+IMAGE_FOLDER = "./Images/"
 
-if __name__ == "__main__":
+class Image(Resource):
+    def get(self, filename):
+        return send_file(os.path.join(IMAGE_FOLDER, filename), mimetype='image/jpeg')
+
+class ImageList(Resource):
+    def get(self):
+        images = os.listdir(IMAGE_FOLDER)
+        return {'images': images}
+
+api.add_resource(Image, '/image/<string:filename>')
+api.add_resource(ImageList, '/images')
+
+if __name__ == "main":
     app.run(host="0.0.0.0", port=8080)
-
 
